@@ -7,7 +7,21 @@ import re
 from urllib.parse import unquote
 
 app = Flask(__name__)
-CORS(app) # Enable CORS for all origins
+CORS(app)  # Enable CORS for all origins
+
+# ---------- নতুন যোগ করা রুট (ইউজার ইন্টারফেস দেখানোর জন্য) ----------
+@app.route('/')
+def serve_index():
+    return send_file('index.html')
+
+@app.route('/style.css')
+def serve_css():
+    return send_file('style.css')
+
+@app.route('/script.js')
+def serve_js():
+    return send_file('script.js')
+# ---------- যোগ করা অংশ শেষ ----------
 
 @app.route('/generate-apk', methods=['POST'])
 def generate_apk():
@@ -30,7 +44,7 @@ def generate_apk():
 
     try:
         pwa2apk_response = requests.post('https://pwa2apk.com/api/generate', data=data, files=files, stream=True)
-        pwa2apk_response.raise_for_status() # Raise an exception for bad status codes
+        pwa2apk_response.raise_for_status()  # Raise an exception for bad status codes
 
         # Get the filename from the content-disposition header if available, otherwise default
         filename = "app.apk"
@@ -60,8 +74,9 @@ def generate_apk():
         app.logger.error(f"An unexpected error occurred: {e}")
         return {"error": f"An unexpected server error occurred: {e}"}, 500
 
-# ... (আগের সব কোড ঠিক থাকবে)
-
+# ---------- সবচেয়ে গুরুত্বপূর্ণ পরিবর্তন (Render-এর জন্য পোর্ট বাইন্ডিং) ----------
 if __name__ == '__main__':
+    # Render চলাকালীন PORT এনভায়রনমেন্ট ভেরিয়েবল থেকে পোর্ট নাও, নাহলে ৫০০০ ধরো
     port = int(os.environ.get("PORT", 5000))
+    # 0.0.0.0-এ বাইন্ড করো, যাতে Render বাইরে থেকে সংযোগ পায়
     app.run(host='0.0.0.0', port=port)
