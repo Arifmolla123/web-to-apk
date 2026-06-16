@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apkverse</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Apkverse</h1>
+        <p class="subtitle">Instantly convert any website into an Android APK file — free &amp; no code!</p>
+        
+        <form id="apk-form">
+            <div class="form-group">
+                <label for="website-url">Website URL:</label>
+                <input type="url" id="website-url" placeholder="e.g., https://myportfolio.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="app-name">App Name:</label>
+                <input type="text" id="app-name" placeholder="e.g., My Portfolio App" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="app-icon">App Icon (PNG):</label>
+                <input type="file" id="app-icon" accept=".png" required>
+            </div>
+            
+            <button type="submit" id="generate-apk-btn">Generate APK</button>
+        </form>
+        
+        <div id="download-section" class="hidden">
+            <p>Your APK is ready!</p>
+            <a id="download-link" href="#" download="app.apk">Download APK</a>
+        </div>
+        
+        <div id="status-message" class="hidden"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
