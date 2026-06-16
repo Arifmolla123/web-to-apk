@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showStatusMessage = (message, type) => {
         statusMessageDiv.textContent = message;
-        statusMessageDiv.className = ``; // Clear previous classes
+        statusMessageDiv.className = '';
         statusMessageDiv.classList.add(type);
         statusMessageDiv.classList.remove('hidden');
     };
@@ -18,11 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
     apkForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        // Hide previous messages and download link
+        // হাইড করা
         downloadSection.classList.add('hidden');
         statusMessageDiv.classList.add('hidden');
         generateApkBtn.disabled = true;
-        showStatusMessage('Generating APK, please wait...', 'info');
+        showStatusMessage('⏳ জেনারেট হচ্ছে, দয়া করে অপেক্ষা করুন...', 'info');
 
         const formData = new FormData();
         formData.append('url', websiteUrlInput.value);
@@ -30,28 +30,49 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('icon', appIconInput.files[0]);
 
         try {
-            const response = await fetch('https://apkverse-proxy.onrender.com/generate-apk', {
+            const response = await fetch('/generate-apk', {
                 method: 'POST',
                 body: formData,
             });
 
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
+            // ১. কন্টেন্ট-টাইপ যাচাই (APK কিনা)
+            const contentType = response.headers.get('content-type') || '';
 
-                downloadLink.href = url;
-                downloadLink.download = `${appNameInput.value.replace(/[^a-zA-Z0-9]/g, '_') || 'app'}.apk`;
-                downloadSection.classList.remove('hidden');
-                showStatusMessage('APK generated successfully!', 'success');
-            } else {
-                const errorText = await response.text();
-                throw new Error(`API Error: ${response.status} - ${errorText}`);
+            if (!response.ok) {
+                // ২. এরর রেসপন্স (টেক্সট বা JSON)
+                let errorMsg = `সার্ভার এরর: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error) errorMsg = errorData.error;
+                } catch {
+                    const text = await response.text();
+                    if (text) errorMsg = text.substring(0, 200);
+                }
+                throw new Error(errorMsg);
             }
+
+            // ৩. যদি কন্টেন্ট-টাইপ APK না হয়, তাহলে এরর
+            if (!contentType.includes('application/vnd.android.package-archive')) {
+                const textPreview = await response.text();
+                throw new Error(`API সঠিক APK ফেরত দেয়নি। এটি পেয়েছে: ${contentType} — ${textPreview.substring(0, 150)}`);
+            }
+
+            // ৪. সব ঠিক থাকলে BLOB ডাউনলোড
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+
+            // ফাইলনেম ঠিক করা (স্পেশাল ক্যারেক্টার বাদ)
+            const safeName = appNameInput.value.replace(/[^a-zA-Z0-9]/g, '_') || 'app';
+            downloadLink.href = url;
+            downloadLink.download = `${safeName}.apk`;
+            downloadSection.classList.remove('hidden');
+            showStatusMessage('✅ APK সফলভাবে জেনারেট হয়েছে!', 'success');
+
         } catch (error) {
             console.error('Error generating APK:', error);
-            showStatusMessage(`Error: ${error.message || 'Failed to generate APK. Please try again.'}`, 'error');
+            showStatusMessage(`❌ ${error.message || 'APK জেনারেট করতে ব্যর্থ। আবার চেষ্টা করুন।'}`, 'error');
         } finally {
             generateApkBtn.disabled = false;
         }
     });
-}); 
+});

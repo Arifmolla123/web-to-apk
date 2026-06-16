@@ -7,9 +7,9 @@ import re
 from urllib.parse import unquote
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all origins
+CORS(app)
 
-# ---------- নতুন যোগ করা রুট (ইউজার ইন্টারফেস দেখানোর জন্য) ----------
+# ফ্রন্টএন্ড ফাইল সার্ভ করার রুট
 @app.route('/')
 def serve_index():
     return send_file('index.html')
@@ -21,11 +21,9 @@ def serve_css():
 @app.route('/script.js')
 def serve_js():
     return send_file('script.js')
-# ---------- যোগ করা অংশ শেষ ----------
 
 @app.route('/generate-apk', methods=['POST'])
 def generate_apk():
-    # Get form data
     website_url = request.form.get('url')
     app_name = request.form.get('name')
     app_icon = request.files.get('icon')
@@ -33,7 +31,6 @@ def generate_apk():
     if not website_url or not app_name or not app_icon:
         return {"error": "Missing form data"}, 400
 
-    # Prepare data for pwa2apk.com API
     files = {
         'icon': (app_icon.filename, app_icon.stream, app_icon.content_type)
     }
@@ -44,13 +41,25 @@ def generate_apk():
 
     try:
         pwa2apk_response = requests.post('https://pwa2apk.com/api/generate', data=data, files=files, stream=True)
-        pwa2apk_response.raise_for_status()  # Raise an exception for bad status codes
+        
+        # লগিং: API কী রিটার্ন করছে দেখুন
+        app.logger.info(f"Status Code: {pwa2apk_response.status_code}")
+        app.logger.info(f"Content-Type: {pwa2apk_response.headers.get('Content-Type')}")
+        # রেসপন্সের প্রথম ৫০০ অক্ষর লগ করুন (যদি টেক্সট হয়)
+        app.logger.info(f"Response preview: {pwa2apk_response.text[:500]}")
+        
+        pwa2apk_response.raise_for_status()
 
-        # Get the filename from the content-disposition header if available, otherwise default
+        # কন্টেন্ট-টাইপ যাচাই
+        content_type = pwa2apk_response.headers.get('Content-Type', '')
+        if 'application/vnd.android.package-archive' not in content_type:
+            app.logger.error(f"Unexpected Content-Type: {content_type}")
+            app.logger.error(f"Response text: {pwa2apk_response.text[:500]}")
+            return {"error": f"API did not return an APK. It returned: {content_type}"}, 500
+
         filename = "app.apk"
         if "content-disposition" in pwa2apk_response.headers:
             content_disposition = pwa2apk_response.headers["content-disposition"]
-            # Extract filename* if present, otherwise filename
             filename_match = re.search(r"filename\*=UTF-8''([^;]+)", content_disposition)
             if filename_match:
                 filename = unquote(filename_match.group(1))
@@ -59,10 +68,9 @@ def generate_apk():
                 if filename_match:
                     filename = filename_match.group(1)
 
-        # Send the APK file back to the client
         return send_file(
             io.BytesIO(pwa2apk_response.content),
-            mimetype=pwa2apk_response.headers['Content-Type'],
+            mimetype='application/vnd.android.package-archive',
             as_attachment=True,
             download_name=filename
         )
@@ -74,9 +82,6 @@ def generate_apk():
         app.logger.error(f"An unexpected error occurred: {e}")
         return {"error": f"An unexpected server error occurred: {e}"}, 500
 
-# ---------- সবচেয়ে গুরুত্বপূর্ণ পরিবর্তন (Render-এর জন্য পোর্ট বাইন্ডিং) ----------
 if __name__ == '__main__':
-    # Render চলাকালীন PORT এনভায়রনমেন্ট ভেরিয়েবল থেকে পোর্ট নাও, নাহলে ৫০০০ ধরো
     port = int(os.environ.get("PORT", 5000))
-    # 0.0.0.0-এ বাইন্ড করো, যাতে Render বাইরে থেকে সংযোগ পায়
     app.run(host='0.0.0.0', port=port)
