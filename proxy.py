@@ -60,7 +60,8 @@ def generate_apk():
         app.logger.error(f"An unexpected error occurred: {e}")
         return {"error": f"An unexpected server error occurred: {e}"}, 500
 
+# ... (আগের সব কোড ঠিক থাকবে)
+
 if __name__ == '__main__':
-    # It's recommended to run Flask in production with a WSGI server like Gunicorn
-    # For development, run directly
-    app.run(debug=True, port=5000) 
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
