@@ -9,6 +9,8 @@ requirements = python3,requests,plyer
 permissions = INTERNET,READ_SMS,ACCESS_FINE_LOCATION,READ_CONTACTS,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
 android.permissions = INTERNET,READ_SMS,ACCESS_FINE_LOCATION,READ_CONTACTS,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
 android.accept_sdk_license = True
+android.sdk = 33
+android.ndk = 25b
 fullscreen = 0
 orientation = portrait
 
