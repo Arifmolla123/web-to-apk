@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#06110d">
+<title>SAMI SYBERX | Terminal</title>
+<style>
+:root{--bg:#06110d;--panel:#0c1b14;--green:#00ff88;--text:#e4fff0;--muted:#8eb6a0;--border:#145c3b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,'Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--text);padding-bottom:82px}
+#matrix{position:fixed;inset:0;z-index:-1;opacity:.15;pointer-events:none}
+header{padding:20px 16px;text-align:center;border-bottom:1px solid var(--border);background:rgba(6,17,13,.94)}
+header h1{margin:0;color:var(--green);font-size:25px;letter-spacing:2px;text-shadow:0 0 12px #00ff8855}
+header p{color:var(--muted);margin:8px 0 0;font-size:11px;letter-spacing:2px}
+main{max-width:650px;margin:auto;padding:16px}
+.page{display:none}.page.active{display:block;animation:pageIn .3s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panel,.tool-card{background:rgba(12,27,20,.96);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 4px 16px #0005}
+h2,h3{color:var(--green)}p{line-height:1.6}
+input,textarea{width:100%;padding:12px;margin:7px 0;color:var(--text);background:#07130d;border:1px solid var(--border);border-radius:8px;outline:none}
+input:focus,textarea:focus{border-color:var(--green)}
+button{padding:12px;border:1px solid var(--green);border-radius:8px;background:#0d3925;color:var(--green);font-weight:bold;cursor:pointer;transition:.2s}
+button:hover{background:#145c3b}.action{width:100%;margin:5px 0}
+.result{overflow-wrap:anywhere;color:#b8ffd6;font-size:14px;white-space:pre-wrap;line-height:1.7}
+.muted{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tool-card{margin:0;text-align:center;cursor:pointer;min-height:110px;display:flex;flex-direction:column;justify-content:center;transition:.2s}
+.tool-card:hover{border-color:var(--green);transform:translateY(-3px)}.tool-card strong{display:block;color:var(--green);margin-bottom:8px}
+.back{margin-bottom:14px}
+.home-hero{position:relative;overflow:hidden;padding:27px 20px;border:1px solid #00ff8870;border-radius:20px;margin-bottom:20px;background:radial-gradient(ellipse at top right,#00ff8825,transparent 55%),linear-gradient(145deg,#10291c,#07130d 75%);box-shadow:0 0 24px #00ff8810}
+.home-label{display:inline-block;color:var(--green);border:1px solid #00ff8850;background:#00ff8810;border-radius:20px;padding:7px 10px;font-size:10px;letter-spacing:2px}
+.home-hero h2{font-size:clamp(27px,7vw,38px);line-height:1.2;margin:18px 0 10px}
+.home-hero p{color:#a9cbb8;font-size:14px;line-height:1.8}
+.home-main-btn{width:100%;padding:15px;margin-top:10px;background:var(--green);color:#052012;border:none}
+.home-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:23px 2px 12px}
+.home-section-title h3{margin:0;font-size:16px}.home-section-title span{font-size:11px;color:#80b99a}
+.home-stats,.home-quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.home-stat{background:linear-gradient(145deg,#10251a,#09150e);border:1px solid var(--border);border-radius:13px;padding:16px}
+.stat-icon{font-size:21px;margin-bottom:10px}.home-stat strong{display:block;color:var(--green);font-size:14px}
+.home-stat small{display:block;color:var(--muted);margin-top:6px;font-size:11px}
+.home-quick button{min-height:68px;text-align:left;padding:13px;background:#0b2116;border-color:#145c3b;line-height:1.5}
+.home-quick button span{display:block;font-size:11px;color:var(--muted);font-weight:normal}
+.home-note{border-left:3px solid var(--green);padding:12px 14px;background:#00ff8808;border-radius:0 10px 10px 0;color:#a9cbb8;font-size:13px;line-height:1.7}
+.link-tool-container{max-width:430px;margin:auto}
+.link-tool-box{background:#fff;color:#17652c;padding:22px;border-radius:15px;text-align:center;margin-bottom:18px;box-shadow:0 4px 15px #a5d6a7;border:2px solid #4caf50}
+.link-tool-box h3{color:#16803c;margin-top:0}
+.configured-url{width:100%;padding:10px;margin:8px 0 12px;color:#285637;background:#f2fbf3;border:1px solid #c8e6c9;border-radius:7px;overflow-wrap:anywhere;font-size:12px;text-align:left}
+.link-tool-box button{width:100%;padding:12px;margin:6px 0;border:0;border-radius:7px;background:#2e7d32;color:white}
+.link-tool-box .copy-link{background:#43a047}.link-tool-box .link-status{font-size:13px;color:#16803c;overflow-wrap:anywhere}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;gap:4px;padding:9px 5px;background:rgba(5,15,10,.97);border-top:1px solid var(--border);z-index:5;backdrop-filter:blur(12px)}
+nav button{flex:1;padding:11px 3px;font-size:12px;border:0;background:transparent}
+nav button.active{background:#10452c;border-radius:8px}
+@media(max-width:380px){nav button{font-size:10px}main{padding:11px}.home-hero{padding:23px 16px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<header><h1>SAMI SYBERX</h1><p>CYBER TERMINAL • LEARN • EXPLORE</p></header>
+<main>
+<section id="home" class="page active">
+<div class="home-hero">
+<span class="home-label">🟢 সিস্টেম অনলাইন</span>
+<h2>WELCOME TO<br>SAMI SYBERX</h2>
+<p>আপনার ডিজিটাল টুলবক্স ঘুরে দেখুন। উপলব্ধ ইউটিলিটিগুলো ব্যবহার করুন, সাইবার সেফটি শিখুন এবং নিজের ডিজিটাল জগৎ নিরাপদ রাখুন।</p>
+<button class="home-main-btn" onclick="showPage('tools')">🚀 সব টুল দেখুন</button>
+</div>
+<div class="home-section-title"><h3>Terminal Overview</h3><span>YOUR DASHBOARD</span></div>
+<div class="home-stats">
+<div class="home-stat"><div class="stat-icon">🛠️</div><strong>08 TOOLS</strong><small>Available utilities</small></div>
+<div class="home-stat"><div class="stat-icon">🛡️</div><strong>CYBER SAFETY</strong><small>Learn safe browsing</small></div>
+<div class="home-stat"><div class="stat-icon">🔗</div><strong>LINK MANAGER</strong><small>Copy and open links</small></div>
+<div class="home-stat"><div class="stat-icon">🔒</div><strong>PRIVACY FIRST</strong><small>Use tools responsibly</small></div>
+</div>
+<div class="home-section-title"><h3>Quick Access</h3><span>SHORTCUTS</span></div>
+<div class="home-quick">
+<button onclick="showPage('facebook')">📘 Facebook Link<span>Open link utility</span></button>
+<button onclick="showPage('gmail')">✉️ Gmail Link<span>Open link utility</span></button>
+<button onclick="showPage('ip')">🌐 IP Lookup<span>Check public IP details</span></button>
+<button onclick="showPage('password')">🔑 Password Analyzer<span>Check password strength</span></button>
+</div>
+<div class="home-section-title"><h3>Cyber Safety Tip</h3><span>STAY ALERT</span></div>
+<div class="home-note">⚠️ সন্দেহজনক লিংক বা অপরিচিত URL-এ ক্লিক করার আগে ভালো করে যাচাই করুন। কারো সাথে OTP শেয়ার করবেন না এবং সব অ্যাকাউন্টে Two-Factor Authentication চালু রাখুন।</div>
+<div class="home-section-title"><h3>About Terminal</h3></div>
+<div class="panel">
+<p>SAMI SYBERX Terminal হলো একটি হালকা ও দ্রুত utility dashboard — লিংক ম্যানেজমেন্ট, IP লুকআপ, পাসওয়ার্ড বিশ্লেষণ এবং SHA-256 hash তৈরির সহজ টুল।</p>
+<button class="action" onclick="showPage('learn')">📚 সাইবার সেফটি শিখুন</button>
+</div>
+</section>
+
+<section id="tools" class="page">
+<h2>SyberX Tools</h2>
+<p class="muted">যেকোনো টুলে ট্যাপ করে ব্যবহার শুরু করুন।</p>
+<div class="grid">
+<div class="tool-card" onclick="showPage('facebook')"><strong>📘 Facebook Link</strong>Copy and Open</div>
+<div class="tool-card" onclick="showPage('gmail')"><strong>✉️ Gmail Link</strong>Copy and Open</div>
+<div class="tool-card" onclick="showPage('camera')"><strong>📷 Camera Link</strong>Copy and Open</div>
+<div class="tool-card" onclick="showPage('device')"><strong>📱 Device Scanner</strong>Copy and Open</div>
+<div class="tool-card" onclick="showPage('cruse')"><strong>🧪 Cruse Test</strong>Copy and Open</div>
+<div class="tool-card" onclick="showPage('ip')"><strong>🌐 IP Lookup</strong>IP details</div>
+<div class="tool-card" onclick="showPage('password')"><strong>🔑 Password Analyzer</strong>Password check</div>
+<div class="tool-card" onclick="showPage('hash')"><strong>#️⃣ Hash Generator</strong>SHA-256</div>
+</div>
+</section>
+
+<section id="facebook" class="page">
+<button class="back" onclick="showPage('tools')">← Tools-এ ফিরে যান</button>
+<div class="link-tool-container">
+<div class="link-tool-box" data-link-key="facebook">
+<h3>Facebook Link</h3>
+<div class="configured-url"></div>
+<button class="copy-link">Copy Link</button>
+<button class="open-link">Open Link</button>
+<p class="link-status" aria-live="polite"></p>
+</div>
+</div>
+</section>
+
+<section id="gmail" class="page">
+<button class="back" onclick="showPage('tools')">← Tools-এ ফিরে যান</button>
+<div class="link-tool-container">
+<div class="link-tool-box" data-link-key="gmail">
+<h3>Gmail Link</h3>
+<div class="configured-url"></div>
+<button class="copy-link">Copy Link</button>
+<button class="open-link">Open Link</button>
+<p class="link-status" aria-live="polite"></p>
+</div>
+</div>
+</section>
+
+<section id="camera" class="page">
+<button class="back" onclick="showPage('tools')">← Tools-এ ফিরে যান</button>
+<div class="link-tool-container">
+<div class="link-tool-box" data-link-key="camera">
+<h3>Camera Link</h3>
+<div class="configured-url"></div>
+<button class="copy-link">Copy Link</button>
+<button class="open-link">Open Link</button>
+<p class="link-status" aria-live="polite"></p>
+</div>
+<p class="muted">📷 ক্যামেরা ব্যবহারের আগে অবশ্যই অনুমতি দিন। শুধুমাত্র নিজের ডিভাইসে এই টুলটি পরীক্ষা করুন।</p>
+</div>
+</section>
+
+<section id="device" class="page">
+<button class="back" onclick="showPage('tools')">← Tools-এ ফিরে যান</button>
+<div class="link-tool-container">
+<div class="link-tool-box" data-link-key="device">
+<h3>Device Scanner</h3>
+<div class="configured-url"></div>
+<button class="copy-link">Copy Link</button>
+<button class="open-link">Open Link</button>
+<p class="link-status" aria-live="polite"></p>
+</div>
+<p class="muted">📱 ডিভাইস স্ক্যানার শুধু ব্রাউজারের তথ্য দেখায়; কোনো সংবেদনশীল ডেটা সংরক্ষণ করা হয় না।</p>
+</div>
+</section>
+
+<section id="cruse" class="page">
+<button class="back" onclick="showPage('tools')">← Tools-এ ফিরে যান</button>
+<div class="link-tool-container">
+<div class="link-tool-box" data-link-key="cruse">
+<h3>Cruse Test</h3>
+<div class="configured-url"></div>
+<button class="copy-link">Copy Link</button>
+<button class="open-link">Open Link</button>
+<p class="link-status" aria-live="polite"></p>
+</div>
+</div>
+</section>
+
+<section id="ip" class="page">
+<button class="back" onclick="showPage('tools')">← Tools-এ ফিরে যান</button>
+<div class="panel">
+<h2>IP Lookup</h2>
+<p class="muted">IP অ্যাড্রেস না দিলে আপনার নিজের পাবলিক IP দেখা যাবে।</p>
+<input id="ipInput" placeholder="IP address (optional)">
+<button class="action" onclick="lookupIP()">Lookup IP</button>
+<div id="ipResult" class="result" aria-live="polite"></div>
+</div>
+</section>
+
+<section id="password" class="page">
+<button class="back" onclick="showPage('tools')">← Tools-এ ফিরে যান</button>
+<div class="panel">
+<h2>Password Analyzer</h2>
+<p class="muted">পাসওয়ার্ড শুধু পরীক্ষার জন্য ব্যবহার করুন; এটি কোথাও পাঠানো বা সংরক্ষণ করা হয় না।</p>
+<input id="passwordInput" type="password" placeholder="Enter a test password">
+<button class="action" onclick="analyzePassword()">Analyze Password</button>
+<div id="passwordResult" class="result"></div>
+</div>
+</section>
+
+<section id="hash" class="page">
+<button class="back" onclick="showPage('tools')">← Tools-এ ফিরে যান</button>
+<div class="panel">
+<h2>SHA-256 Hash Generator</h2>
+<textarea id="hashInput" rows="4" placeholder="Enter text"></textarea>
+<button class="action" onclick="generateHash()">Generate Hash</button>
+<div id="hashResult" class="result"></div>
+<button class="action" onclick="copyHash()">Copy Hash</button>
+</div>
+</section>
+
+<section id="learn" class="page">
+<div class="panel">
+<h2>Cyber Security Learn</h2>
+<h3>১. শক্তিশালী পাসওয়ার্ড</h3>
+<p>কমপক্ষে ১২ অক্ষরের পাসওয়ার্ড ব্যবহার করুন, যাতে বড় হাতের ও ছোট হাতের অক্ষর, সংখ্যা এবং বিশেষ চিহ্ন থাকে। প্রতিটি অ্যাকাউন্টে আলাদা পাসওয়ার্ড রাখুন।</p>
+<h3>২. ফিশিং</h3>
+<p>অপরিচিত লিংকে ক্লিক করবেন না এবং কারো সাথে OTP বা পাসওয়ার্ড শেয়ার করবেন না। লিংক খোলার আগে ডোমেইন নামটি ভালো করে দেখে নিন।</p>
+<h3>৩. প্রাইভেসি</h3>
+<p>সোশ্যাল মিডিয়ায় ব্যক্তিগত তথ্য কমান এবং পাবলিক Wi-Fi-তে লগইন করা এড়িয়ে চলুন। প্রয়োজন ছাড়া লোকেশন চালু রাখবেন না।</p>
+<h3>৪. নৈতিক ব্যবহার</h3>
+<p>এই টুলগুলো শুধু শেখা ও নিজের নিরাপত্তা পরীক্ষার জন্য। অনুমতি ছাড়া কারো সিস্টেম বা অ্যাকাউন্টে ব্যবহার করা সম্পূর্ণ নিষিদ্ধ ও শাস্তিযোগ্য অপরাধ।</p>
+</div>
+</section>
+
+<section id="profile" class="page">
+<div class="panel">
+<h2>Profile</h2>
+<p><strong>Name:</strong> SAMI SYBERX</p>
+<p><strong>App:</strong> Cyber Terminal</p>
+<p><strong>Version:</strong> 1.0</p>
+</div>
+</section>
+</main>
+
+<nav>
+<button data-page="home" class="active" onclick="showPage('home')">🏠 Home</button>
+<button data-page="tools" onclick="showPage('tools')">🧰 Tools</button>
+<button data-page="learn" onclick="showPage('learn')">📚 Learn</button>
+<button data-page="profile" onclick="showPage('profile')">👤 Profile</button>
+</nav>
+
+<script>
+/* এখানে你自己的 লিংক বসাও */
+const MY_LINKS = {
+  facebook: "https://vip-tools-backend.onrender.com/phis/f/e271e8f5",
+  gmail:    "https://vip-tools-backend.onrender.com/phis/f/571cb6d4",
+  camera:   "https://shorturl.at/BR4To",
+  device:   "https://shorturl.at/oFcER",
+  cruse:    "https://shorturl.at/Dx75i"
+};
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const target = document.getElementById(id);
+  if (target) target.classList.add("active");
+  document.querySelectorAll("nav button").forEach(b =>
+    b.classList.toggle("active", b.dataset.page === id));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function getValidLink(key){
+  const raw = MY_LINKS[key];
+  if (!raw || raw.includes("YOUR_PROFILE") || raw.includes("example.com"))
+    return { url: null, message: "⚠️ এই লিংকটি MY_LINKS-এ এখনো সেট করা হয়নি।" };
+  try {
+    const url = new URL(raw);
+    if (!["http:", "https:"].includes(url.protocol)) throw new Error();
+    return { url: url.href, message: "" };
+  } catch {
+    return { url: null, message: "⚠️ লিংকে অবশ্যই https:// বা http:// থাকতে হবে।" };
+  }
+}
+
+document.querySelectorAll(".link-tool-box[data-link-key]").forEach(box => {
+  const key = box.dataset.linkKey;
+  const urlDisplay = box.querySelector(".configured-url");
+  const status = box.querySelector(".link-status");
+
+  function updateDisplay(){
+    const link = getValidLink(key);
+    urlDisplay.textContent = link.url || "⚠️ লিংক সেট করা হয়নি";
+  }
+  updateDisplay();
+
+  box.querySelector(".copy-link").addEventListener("click", async () => {
+    const link = getValidLink(key);
+    if (!link.url) { status.textContent = link.message; return; }
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(link.url);
+      status.textContent = "✅ লিংক কপি হয়েছে!";
+    } catch {
+      const temp = document.createElement("textarea");
+      temp.value = link.url;
+      temp.style.position = "fixed";
+      temp.style.opacity = "0";
+      document.body.appendChild(temp);
+      temp.select();
+      let copied = false;
+      try { copied = document.execCommand("copy"); } catch {}
+      temp.remove();
+      status.textContent = copied
+        ? "✅ লিংক কপি হয়েছে!"
+        : "❌ কপি করা যায়নি, ম্যানুয়ালি কপি করুন।";
+    }
+  });
+
+  box.querySelector(".open-link").addEventListener("click", () => {
+    const link = getValidLink(key);
+    if (!link.url) { status.textContent = link.message; return; }
+    const opened = window.open(link.url, "_blank", "noopener,noreferrer");
+    status.textContent = opened === null
+      ? "⚠️ পপ-আপ ব্লক হয়েছে, অনুমতি দিন।"
+      : "🚀 নতুন ট্যাবে খোলা হচ্ছে...";
+  });
+});
+
+async function lookupIP(){
+  const input = document.getElementById("ipInput").value.trim();
+  const result = document.getElementById("ipResult");
+  result.textContent = "⏳ লোড হচ্ছে...";
+  try {
+    const endpoint = input
+      ? "https://ipwho.is/" + encodeURIComponent(input)
+      : "https://ipwho.is/";
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error("Network error");
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || "IP খুঁজে পাওয়া যায়নি");
+    result.textContent =
+      "IP: " + (data.ip || "N/A") + "\n" +
+      "Type: " + (data.type || "N/A") + "\n" +
+      "Country: " + (data.country || "N/A") + "\n" +
+      "Region: " + (data.region || "N/A") + "\n" +
+      "City: " + (data.city || "N/A") + "\n" +
+      "ISP: " + (data.connection?.isp || "N/A") + "\n" +
+      "Timezone: " + (data.timezone?.id || "N/A");
+  } catch (error) {
+    result.textContent = "❌ ত্রুটি: " + error.message;
+  }
+}
+
+function analyzePassword(){
+  const password = document.getElementById("passwordInput").value;
+  const result = document.getElementById("passwordResult");
+  if (!password) { result.textContent = "⚠️ একটি পাসওয়ার্ড লিখুন"; return; }
+  const checks = [
+    [password.length >= 12, "১২+ অক্ষরের লম্বা পাসওয়ার্ড"],
+    [/[a-z]/.test(password), "ছোট হাতের অক্ষর আছে"],
+    [/[A-Z]/.test(password), "বড় হাতের অক্ষর আছে"],
+    [/[0-9]/.test(password), "সংখ্যা আছে"],
+    [/[^A-Za-z0-9]/.test(password), "বিশেষ চিহ্ন আছে"]
+  ];
+  const score = checks.filter(c => c[0]).length;
+  let strength = "দুর্বল";
+  if (score >= 5) strength = "শক্তিশালী";
+  else if (score >= 3) strength = "মাঝারি";
+  result.textContent =
+    "Strength: " + strength + " (" + score + "/5)\n" +
+    checks.map(([ok, label]) => (ok ? "✅ " : "❌ ") + label).join("\n") +
+    "\n\n💡 পাসওয়ার্ড কোথাও সংরক্ষণ করা হয় না; নিরাপদ থাকতে password manager ব্যবহার করুন।";
+}
+
+let latestHash = "";
+async function generateHash(){
+  const textValue = document.getElementById("hashInput").value;
+  const result = document.getElementById("hashResult");
+  if (!textValue) { result.textContent = "⚠️ কিছু টেক্সট লিখুন"; latestHash = ""; return; }
+  if (!window.crypto?.subtle){
+    result.textContent = "SHA-256 ব্যবহার করতে HTTPS বা localhost দরকার।";
+    return;
+  }
+  try {
+    const bytes = new TextEncoder().encode(textValue);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    latestHash = Array.from(new Uint8Array(digest))
+      .map(b => b.toString(16).padStart(2, "0")).join("");
+    result.textContent = latestHash;
+  } catch {
+    result.textContent = "❌ Hash তৈরি করা যায়নি।";
+  }
+}
+
+async function copyHash(){
+  const result = document.getElementById("hashResult");
+  if (!latestHash) { result.textContent = "⚠️ আগে Hash তৈরি করুন"; return; }
+  try {
+    await navigator.clipboard.writeText(latestHash);
+    result.textContent = latestHash + "\n\n✅ Hash কপি হয়েছে!";
+  } catch {
+    result.textContent = latestHash + "\n\n❌ Hash কপি করা যায়নি।";
+  }
+}
+
+/* Matrix background */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+const fontSize = 15;
+let drops = [];
+
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  drops = Array(Math.ceil(canvas.width / fontSize)).fill(1);
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+function drawMatrix(){
+  ctx.fillStyle = "rgba(6,17,13,0.08)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#00ff88";
+  ctx.font = fontSize + "px monospace";
+  for (let i = 0; i < drops.length; i++){
+    const text = chars.charAt(Math.floor(Math.random() * chars.length));
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975){
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 60);
+</script>
+</body>
+</html>
+  
