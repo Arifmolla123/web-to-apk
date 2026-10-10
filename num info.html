@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Number Info — India Lookup</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;padding:18px 12px 60px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(800px 400px at 50% -10%,rgba(124,92,255,.22),transparent 60%),radial-gradient(600px 400px at 0% 110%,rgba(34,211,238,.14),transparent 60%),#06060c;color:#e6e8ee;-webkit-font-smoothing:antialiased}
+.wrap{max-width:520px;margin:0 auto}
+.hd{text-align:center;margin-bottom:22px}
+.crown{font-size:30px;background:linear-gradient(135deg,#7c5cff,#22d3ee 50%,#f472b6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(124,92,255,.55))}
+.ttl{font-size:20px;font-weight:900;letter-spacing:5px;margin-top:6px;background:linear-gradient(135deg,#fff,#a78bfa 50%,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sb{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8a8fa8;margin-top:4px}
+.card{background:linear-gradient(180deg,rgba(22,24,36,.95),rgba(15,16,24,.95));border:1px solid #23263a;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.fld{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.fld span{font-size:11px;color:#8a8fa8;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.fld input{width:100%;background:rgba(10,11,18,.85);border:1px solid #23263a;color:#e6e8ee;padding:14px;border-radius:11px;font-size:17px;outline:none;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:1.5px;text-align:center}
+.fld input:focus{border-color:#7c5cff;box-shadow:0 0 0 3px rgba(124,92,255,.18)}
+.fld input::placeholder{color:#4a4d63}
+.hint{font-size:11px;color:#4a4d63;letter-spacing:.5px;margin-top:-4px;text-align:center}
+.btn{width:100%;background:linear-gradient(135deg,#7c5cff,#9a80ff 60%,#22d3ee);color:#fff;border:0;border-radius:11px;padding:14px;font-size:15px;font-weight:800;letter-spacing:1px;cursor:pointer;box-shadow:0 12px 30px rgba(124,92,255,.35);transition:filter .15s,transform .15s}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn:active{transform:scale(.985)}
+.btn:disabled{opacity:.5}
+.rw{display:flex;justify-content:space-between;gap:12px;background:rgba(10,11,18,.7);border:1px solid #23263a;border-radius:11px;padding:12px 14px;margin-bottom:8px}
+.rw .k{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8a8fa8;font-weight:700;flex-shrink:0;max-width:45%;word-break:break-word}
+.rw .v{font-size:14.5px;font-weight:600;color:#e6e8ee;font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-word;text-align:right;flex:1}
+.rw .v.hi{color:#a78bfa;font-weight:700;font-size:15px}
+.ldr{display:none;text-align:center;padding:22px;color:#8a8fa8;font-size:13px;letter-spacing:2px;text-transform:uppercase}
+.ldr.on{display:block}
+.dots::after{content:'';animation:dots 1.4s steps(4,end) infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+.alert{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.35);color:#f87171;padding:12px;border-radius:11px;font-size:13px;line-height:1.5}
+.raw{background:#05060a;border:1px solid #23263a;border-radius:10px;padding:12px;font-size:11px;color:#a0a8c0;overflow-x:auto;font-family:ui-monospace,monospace;line-height:1.5;white-space:pre-wrap;word-break:break-all;max-height:300px}
+details{margin-top:12px}
+details summary{cursor:pointer;color:#8a8fa8;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:8px 0;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:'▸ ';color:#6c8cff}
+details[open] summary::before{content:'▾ '}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{flex:1;padding:9px;text-align:center;background:rgba(22,24,36,.9);border:1px solid #23263a;border-radius:9px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#8a8fa8;cursor:pointer}
+.tab.on{background:linear-gradient(135deg,rgba(124,92,255,.3),rgba(34,211,238,.2));color:#fff;border-color:#7c5cff}
+textarea{width:100%;min-height:150px;background:rgba(10,11,18,.85);border:1px solid #23263a;color:#e6e8ee;padding:12px;border-radius:11px;font-size:13px;outline:none;font-family:ui-monospace,monospace;resize:vertical;line-height:1.6}
+textarea:focus{border-color:#7c5cff}
+.meta{font-size:11px;color:#4a4d63;text-align:center;margin-top:12px;line-height:1.7}
+.copy-btn{background:transparent;border:1px solid #23263a;color:#8a8fa8;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:8px}
+.copy-btn:hover{border-color:#7c5cff;color:#a78bfa}
+.rec-head{font-size:11px;color:#22d3ee;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin-bottom:10px}
+.result-head{font-size:11px;color:#8a8fa8;letter-spacing:2px;text-transform:uppercase;font-weight:800;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hd">
+<div class="crown">♛</div>
+<div class="ttl">NUMBER INFO</div>
+<div class="sb">india lookup</div>
+</div>
+
+<div class="tabs">
+<div class="tab on" id="t1" onclick="switchTab('one')">Single</div>
+<div class="tab" id="t2" onclick="switchTab('bulk')">Bulk</div>
+</div>
+
+<div id="v-one">
+  <div class="card">
+    <div class="fld">
+      <span>Phone Number</span>
+      <input type="tel" id="num" placeholder="9876543210" inputmode="numeric" maxlength="14" autocomplete="off" autofocus>
+      <div class="hint">10 digits · e.g. 9876543210</div>
+    </div>
+    <button class="btn" id="go" onclick="lookup()">Lookup</button>
+  </div>
+  <div class="ldr" id="ldr">Searching<span class="dots"></span></div>
+  <div id="out"></div>
+</div>
+
+<div id="v-bulk" style="display:none">
+  <div class="card">
+    <div class="fld">
+      <span>Numbers (one per line)</span>
+      <textarea id="bulkNum" placeholder="9876543210&#10;9123456780&#10;7012345678"></textarea>
+    </div>
+    <button class="btn" id="goBulk" onclick="bulkLookup()">Lookup All</button>
+  </div>
+  <div class="ldr" id="ldrBulk">Processing<span class="dots"></span></div>
+  <div id="outBulk"></div>
+</div>
+
+<p class="meta">Powered by <b style="color:#22d3ee">asurpapa API</b></p>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
+const API_URL = 'https://num-to-info.asurpapa.workers.dev/api';
+const API_KEY = '@ASUR_ABOUT';
+const USE_PROXY_FALLBACK = true;
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+let MODE = 'one';
+
+function switchTab(m) {
+  MODE = m;
+  $('t1').classList.toggle('on', m === 'one');
+  $('t2').classList.toggle('on', m === 'bulk');
+  $('v-one').style.display = m === 'one' ? 'block' : 'none';
+  $('v-bulk').style.display = m === 'bulk' ? 'block' : 'none';
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function validate(num) {
+  const n = String(num).replace(/\D/g, '');
+  if (/^[6-9]\d{9}$/.test(n)) return { local: n, intl: '91' + n };
+  if (/^91[6-9]\d{9}$/.test(n)) return { local: n.slice(2), intl: n };
+  if (/^0[6-9]\d{9}$/.test(n)) return { local: n.slice(1), intl: '91' + n.slice(1) };
+  return null;
+}
+
+// ═══════════════════════════════════════════════
+//  API CALL
+// ═══════════════════════════════════════════════
+async function callApi(intl) {
+  const direct = API_URL + '?key=' + encodeURIComponent(API_KEY) + '&number=' + encodeURIComponent(intl);
+
+  try {
+    const r = await fetch(direct, { method: 'GET' });
+    if (r.ok) {
+      const text = await r.text();
+      try { return { ok: true, data: JSON.parse(text), via: 'direct' }; }
+      catch(e) { return { ok: false, error: 'Invalid JSON: ' + text.slice(0, 120) }; }
+    }
+  } catch(e) {}
+
+  if (!USE_PROXY_FALLBACK) return { ok: false, error: 'CORS blocked' };
+
+  const proxies = [
+    'https://corsproxy.io/?' + encodeURIComponent(direct),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(direct),
+    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(direct)
+  ];
+
+  for (const p of proxies) {
+    try {
+      const r = await fetch(p, { method: 'GET' });
+      if (!r.ok) continue;
+      const text = await r.text();
+      try {
+        const j = JSON.parse(text);
+        return { ok: true, data: j, via: 'proxy' };
+      } catch(e) { continue; }
+    } catch(e) { continue; }
+  }
+  return { ok: false, error: 'All API routes failed' };
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER ONE RECORD AS CARD
+// ═══════════════════════════════════════════════
+function renderRecord(rec, idx) {
+  const rows = [];
+  const skip = ['id', 'credit', 'timestamp', 'success', 'total_results', 'results', 'message'];
+
+  function push(k, v) {
+    if (v === null || v === undefined || v === '') return;
+    if (typeof v === 'object') {
+      if (Array.isArray(v)) {
+        v = v.map(x => typeof x === 'object' ? JSON.stringify(x) : x).join(', ');
+      } else {
+        for (const sk in v) push(k + ' ' + sk, v[sk]);
+        return;
+      }
+    }
+    rows.push([k, String(v)]);
+  }
+
+  for (const k in rec) {
+    if (skip.includes(k)) continue;
+    push(k, rec[k]);
+  }
+
+  let html = '<div class="card">';
+  if (idx > 0) {
+    html += '<div class="rec-head">Record #' + idx + '</div>';
+  } else {
+    html += '<div class="result-head">Result</div>';
+  }
+
+  if (!rows.length) {
+    html += '<div style="color:#8a8fa8;text-align:center;padding:16px;font-size:13px">No fields</div>';
+  } else {
+    for (const [k, v] of rows) {
+      const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const hi = /name|operator|mobile|email/i.test(k);
+      html += '<div class="rw"><div class="k">' + esc(label) + '</div><div class="v' + (hi ? ' hi' : '') + '">' + esc(v) + '</div></div>';
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+// ═══════════════════════════════════════════════
+//  SINGLE LOOKUP
+// ═══════════════════════════════════════════════
+async function lookup() {
+  const raw = $('num').value;
+  const norm = validate(raw);
+  if (!norm) {
+    $('out').innerHTML = '<div class="card"><div class="alert">✗ Invalid Indian number. 10 digits starting with 6-9.</div></div>';
+    return;
+  }
+
+  $('go').disabled = true;
+  $('ldr').classList.add('on');
+  $('out').innerHTML = '';
+
+  try {
+    const res = await callApi(norm.intl);
+    if (!res.ok) {
+      $('out').innerHTML = '<div class="card"><div class="alert">✗ ' + esc(res.error) + '</div></div>';
+      return;
+    }
+
+    const j = res.data;
+    window._lastRaw = JSON.stringify(j, null, 2);
+
+    const records = Array.isArray(j.results) ? j.results : null;
+
+    if (j.success === false || (records && records.length === 0)) {
+      let html = '<div class="card">';
+      html += '<div class="alert"><b>No data available</b><br>' + esc(j.message || 'No records found') + '</div>';
+      html += '<details style="margin-top:12px"><summary>Raw JSON</summary><div class="raw">' + esc(window._lastRaw) + '</div></details>';
+      html += '</div>';
+      $('out').innerHTML = html;
+      return;
+    }
+
+    let html = '';
+
+    if (records && records.length) {
+      html += '<div class="card">';
+      html += '<div class="result-head">Found ' + records.length + ' record' + (records.length > 1 ? 's' : '') + ' · ' + esc(norm.local) + ' · via ' + esc(res.via) + '</div>';
+      html += '</div>';
+
+      records.forEach((rec, i) => {
+        html += renderRecord(rec, i + 1);
+      });
+    } else {
+      html += renderRecord(j, 0);
+    }
+
+    html += '<div class="card">';
+    html += '<details><summary>Raw JSON</summary><div class="raw">' + esc(window._lastRaw) + '</div></details>';
+    html += '<button class="copy-btn" onclick="copyRaw()">📋 Copy JSON</button>';
+    html += '</div>';
+
+    $('out').innerHTML = html;
+
+  } catch(e) {
+    $('out').innerHTML = '<div class="card"><div class="alert">✗ Network error: ' + esc(e.message) + '</div></div>';
+  } finally {
+    $('go').disabled = false;
+    $('ldr').classList.remove('on');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  BULK LOOKUP
+// ═══════════════════════════════════════════════
+async function bulkLookup() {
+  const raw = $('bulkNum').value.trim();
+  if (!raw) { alert('Enter at least one number'); return; }
+
+  const lines = raw.split(/[\r\n,]+/).map(s => s.trim()).filter(Boolean);
+  if (!lines.length) { alert('No valid lines'); return; }
+  if (lines.length > 10) { alert('Max 10 numbers at once'); return; }
+
+  $('goBulk').disabled = true;
+  $('ldrBulk').classList.add('on');
+  $('outBulk').innerHTML = '';
+
+  const results = [];
+  for (const line of lines) {
+    const norm = validate(line);
+    if (!norm) { results.push({ input: line, ok: false, error: 'invalid' }); continue; }
+    const res = await callApi(norm.intl);
+    if (res.ok) results.push({ input: norm.local, ok: true, data: res.data });
+    else results.push({ input: norm.local, ok: false, error: res.error });
+    await new Promise(r => setTimeout(r, 400));
+  }
+
+  const ok = results.filter(r => r.ok).length;
+  const fail = results.length - ok;
+
+  let html = '<div class="card">';
+  html += '<div class="result-head">Total: ' + results.length + ' · Success: ' + ok + ' · Failed: ' + fail + '</div>';
+  html += '</div>';
+
+  for (const item of results) {
+    if (!item.ok) {
+      html += '<div class="card"><div class="alert">✗ ' + esc(item.input) + ' — ' + esc(item.error) + '</div></div>';
+      continue;
+    }
+    const recs = Array.isArray(item.data.results) ? item.data.results : null;
+    if (item.data.success === false || (recs && !recs.length)) {
+      html += '<div class="card"><div class="alert">' + esc(item.input) + ' — no data found</div></div>';
+      continue;
+    }
+    if (recs && recs.length) {
+      html += '<div class="card"><div class="result-head">' + esc(item.input) + ' — ' + recs.length + ' record' + (recs.length > 1 ? 's' : '') + '</div></div>';
+      recs.forEach((rec, i) => { html += renderRecord(rec, i + 1); });
+    } else {
+      html += renderRecord(item.data, 0);
+    }
+  }
+
+  html += '<div class="card">';
+  html += '<button class="copy-btn" onclick="copyBulk()">📋 Copy Result JSON</button>';
+  html += '</div>';
+
+  $('outBulk').innerHTML = html;
+  window._lastBulk = JSON.stringify(results, null, 2);
+
+  $('goBulk').disabled = false;
+  $('ldrBulk').classList.remove('on');
+}
+
+// ═══════════════════════════════════════════════
+//  COPY
+// ═══════════════════════════════════════════════
+async function copyText(text) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch(e) {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch(e) { return false; }
+}
+async function copyRaw() {
+  const ok = await copyText(window._lastRaw || '');
+  alert(ok ? 'Copied!' : 'Copy failed');
+}
+async function copyBulk() {
+  const ok = await copyText(window._lastBulk || '');
+  alert(ok ? 'Copied!' : 'Copy failed');
+}
+
+// ═══════════════════════════════════════════════
+//  INPUT AUTO-FORMAT
+// ═══════════════════════════════════════════════
+$('num').addEventListener('input', () => {
+  let v = $('num').value.replace(/\D/g, '');
+  if (v.startsWith('91') && v.length > 10) v = v.slice(2);
+  if (v.startsWith('0') && v.length > 10) v = v.slice(1);
+  if (v.length > 10) v = v.slice(0, 10);
+  $('num').value = v;
+});
+
+$('num').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); lookup(); }
+});
+</script>
+</body>
+</html>
